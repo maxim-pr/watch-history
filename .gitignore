@@ -2,3 +2,5 @@
 venv/
 watched_backend.egg-info/
 **/__pycache__/
+.env
+watched.log
