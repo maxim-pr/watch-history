@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 PACKAGE_NAME = 'watched'
 
 setup(
-    name='watched-backend',
+    name='watched-main-service',
     version='1.0.0',
     platforms='all',
     packages=find_packages(include=['watched']),
