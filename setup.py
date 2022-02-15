@@ -9,7 +9,7 @@ setup(
     packages=find_packages(include=['watched']),
     entry_points={
         'console_scripts': [
-            '{0}-api = {0}.api.__main__:main'.format(PACKAGE_NAME)
+            '{0}-api = {0}.__main__:main'.format(PACKAGE_NAME)
         ]
     }
 )
