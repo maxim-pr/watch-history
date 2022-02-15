@@ -2,8 +2,9 @@ import logging
 
 from aiohttp import web
 
-from ..config import Config, read_config
-from ..logger import setup_logger
+from .handlers import register_views
+from .config import Config, read_config
+from .logger import setup_logger
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 def create_app(config: Config) -> web.Application:
     setup_logger(config.log_level)
     app = web.Application()
+    register_views(app)
     return app
 
 
