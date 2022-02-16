@@ -1,36 +1,61 @@
 from sqlalchemy import (
     MetaData, Table, Index, Column, ForeignKey,
-    Integer, SmallInteger, Text, DateTime
+    Integer, SmallInteger, Text, DateTime, Boolean
 )
 
+naming_convention = {
+    'all_column_names': lambda constraint, table: '_'.join([
+        column.name for column in constraint.columns.values()
+    ]),
+    'ix': 'ix__%(all_column_names)s',
+    'uq': 'uq__%(table_name)s__%(all_column_names)s',
+    'ck': 'ck__%(table_name)s__%(constraint_name)s',
+    'fk': (
+        'fk__%(table_name)s__' 
+        '%(all_column_names)s__' 
+        '%(referred_table_name)s'
+    ),
+    'pk': 'pk__%(table_name)s'
+}
 
-metadata = MetaData()
+metadata = MetaData(naming_convention=naming_convention)
+
+
+watch_history_table = Table(
+    'watch_history',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('user_id', Integer, nullable=False),
+    Column('name', Text, nullable=False),
+    Column('datetime', DateTime, nullable=False),
+    Column('is_show', Boolean, nullable=False)
+)
+
+Index('ix__user_id_datetime',
+      watch_history_table.c.user_id,
+      watch_history_table.c.datetime)
+
+
+watch_history_shows_table = Table(
+    'watch_history_shows',
+    metadata,
+    Column('watch_event_id', Integer,
+           ForeignKey('watch_history.id', ondelete='CASCADE'),
+           unique=True, nullable=False),
+    Column('first_episode', SmallInteger, nullable=False),
+    Column('last_episode', SmallInteger, nullable=False),
+    Column('finished_show', Boolean),
+    Column('season', SmallInteger),
+    Column('finished_season', Boolean)
+)
+
 
 watched_table = Table(
     'watched',
     metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('name', Text, nullable=False),
-    Column('datetime', DateTime, nullable=False),
-    Column('user_id', Integer, nullable=False),
+    Column('watch_event_id', Integer,
+           ForeignKey('watch_history.id', ondelete='CASCADE'),
+           unique=True, nullable=False),
     Column('score', SmallInteger),
     Column('review', Text)
-)
-
-Index('ix__user_id_datetime',
-      watched_table.c.user_id,
-      watched_table.c.datetime)
-
-Index('ix__user_id_score',
-      watched_table.c.user_id,
-      watched_table.c.score)
-
-
-watched_shows_table = Table(
-    'watched_shows',
-    metadata,
-    Column('watched_id', ForeignKey('watched.id', ondelete='CASCADE')),
-    Column('season', SmallInteger),
-    Column('first_episode', SmallInteger),
-    Column('last_episode', SmallInteger),
 )
