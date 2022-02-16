@@ -2,12 +2,14 @@ import logging
 from functools import partial
 
 from aiohttp import web
+from aioredis import Redis
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from .config import Config, DBConfig, read_config
+from . import services
+from .config import Config, DBConfig, RedisConfig, read_config
 from .handlers import register_handlers
 from .logger import setup_logger
-from .service import Service
+from .middlewares import auth_middleware, error_middleware
 
 logger = logging.getLogger(__name__)
 
@@ -21,15 +23,24 @@ async def setup_db_engine(app: web.Application, db_config: DBConfig):
     await app['db_engine'].dispose()
 
 
-async def setup_service(app: web.Application):
-    app['service'] = Service(app['db_engine'])
+async def setup_redis(app: web.Application, redis_config: RedisConfig):
+    app['redis'] = Redis.from_url(redis_config.url)
+    yield
+    await app['redis'].close()
+
+
+async def setup_services(app: web.Application):
+    app['services'] = dict()
+    app['services']['users'] = services.Users(app['redis'])
+    app['services']['watch_history'] = services.WatchHistory(app['db_engine'])
 
 
 def create_app(config: Config) -> web.Application:
     setup_logger(config.log_level)
-    app = web.Application()
+    app = web.Application(middlewares=[auth_middleware, error_middleware])
     app.cleanup_ctx.append(partial(setup_db_engine, db_config=config.db))
-    app.on_startup.append(setup_service)
+    app.cleanup_ctx.append(partial(setup_redis, redis_config=config.redis))
+    app.on_startup.append(setup_services)
     register_handlers(app.router)
     return app
 

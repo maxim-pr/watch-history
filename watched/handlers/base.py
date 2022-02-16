@@ -1,10 +1,19 @@
 from aiohttp import web
 
-from ..service import Service
+from .. import services
 
 
-class BaseView(web.View):
+class BaseHandler(web.View):
+
+    def __init__(self, request: web.Request):
+        if request.get('user_id') is None:
+            raise web.HTTPUnauthorized()
+        super().__init__(request)
 
     @property
-    def service(self) -> Service:
-        return self.request.app['service']
+    def user_id(self) -> str:
+        return self.request['user_id']
+
+    @property
+    def watch_history_service(self) -> services.WatchHistory:
+        return self.request.app['services']['watch_history']

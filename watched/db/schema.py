@@ -44,9 +44,9 @@ watch_history_shows_table = Table(
            unique=True, nullable=False),
     Column('first_episode', SmallInteger, nullable=False),
     Column('last_episode', SmallInteger, nullable=False),
-    Column('finished_show', Boolean),
     Column('season', SmallInteger),
-    Column('finished_season', Boolean)
+    Column('finished_season', Boolean),
+    Column('finished_show', Boolean)
 )
 
 
