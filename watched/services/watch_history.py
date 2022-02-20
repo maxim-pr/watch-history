@@ -1,21 +1,38 @@
-from sqlalchemy import insert
-from sqlalchemy.ext.asyncio import AsyncEngine
+from typing import Optional
 
-from ..db.schema import watch_history_table
-from ..models import watch_history
+from ..models import WatchEventFilm, WatchEventShow, WatchedFilm, WatchedShow
+from ..repositories.watch_history import WatchHistoryRepository
+from ..repositories.watched import WatchedRepository
 
 
-class WatchHistory:
-    def __init__(self, db_engine: AsyncEngine):
-        self._db_engine = db_engine
+class WatchHistoryService:
 
-    async def add_film(self, film: watch_history.Film) -> str:
-        query = insert(watch_history_table).values(
-            user_id=int(film.user_id),
-            **film.dict(exclude={'user_id'})
+    def __init__(self,
+                 watch_history_repo: WatchHistoryRepository,
+                 watched_repo: WatchedRepository):
+        self._watch_history_repo = watch_history_repo
+        self._watched_repo = watched_repo
+
+    async def add_film(self, film: WatchEventFilm) -> tuple[str, str]:
+        watch_event_id = await self._watch_history_repo.add_film(film)
+        watched_id = await self._watched_repo.add(
+            WatchedFilm(
+                watch_event_id=watch_event_id,
+                watch_event=film
+            )
         )
-        async with self._db_engine.begin() as db_conn:
-            result = await db_conn.execute(query)
-        row = result.inserted_primary_key
+        return watch_event_id, watched_id
 
-        return str(row.id)
+    async def add_show(self, show: WatchEventShow) -> tuple[str, Optional[str]]:
+        watch_event_id = await self._watch_history_repo.add_show(show)
+        # TODO: handle flags properly
+        if show.finished_show:
+            watched_id = await self._watched_repo.add(
+                WatchedShow(
+                    watch_event_id=watch_event_id,
+                    watch_event=show
+                )
+            )
+            return watch_event_id, watched_id
+
+        return watch_event_id, None

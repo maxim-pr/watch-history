@@ -15,5 +15,5 @@ class BaseHandler(web.View):
         return self.request['user_id']
 
     @property
-    def watch_history_service(self) -> services.WatchHistory:
+    def watch_history_service(self) -> services.WatchHistoryService:
         return self.request.app['services']['watch_history']

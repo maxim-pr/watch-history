@@ -27,8 +27,7 @@ watch_history_table = Table(
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('user_id', Integer, nullable=False),
     Column('name', Text, nullable=False),
-    Column('datetime', DateTime, nullable=False),
-    Column('is_show', Boolean, nullable=False)
+    Column('datetime', DateTime, nullable=False)
 )
 
 Index('ix__user_id_datetime',
@@ -42,8 +41,8 @@ watch_history_shows_table = Table(
     Column('watch_event_id', Integer,
            ForeignKey('watch_history.id', ondelete='CASCADE'),
            unique=True, nullable=False),
-    Column('first_episode', SmallInteger, nullable=False),
-    Column('last_episode', SmallInteger, nullable=False),
+    Column('first_episode', SmallInteger),
+    Column('last_episode', SmallInteger),
     Column('season', SmallInteger),
     Column('finished_season', Boolean),
     Column('finished_show', Boolean)
@@ -53,6 +52,7 @@ watch_history_shows_table = Table(
 watched_table = Table(
     'watched',
     metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
     Column('watch_event_id', Integer,
            ForeignKey('watch_history.id', ondelete='CASCADE'),
            unique=True, nullable=False),

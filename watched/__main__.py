@@ -5,11 +5,13 @@ from aiohttp import web
 from aioredis import Redis
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from . import services
 from .config import Config, DBConfig, RedisConfig, read_config
 from .handlers import register_handlers
 from .logger import setup_logger
 from .middlewares import auth_middleware, error_middleware
+from .repositories import UserSessionsRepository, WatchHistoryRepository, \
+    WatchedRepository
+from .services import UsersService, WatchHistoryService
 
 logger = logging.getLogger(__name__)
 
@@ -29,10 +31,22 @@ async def setup_redis(app: web.Application, redis_config: RedisConfig):
     await app['redis'].close()
 
 
+def setup_repositories(app: web.Application):
+    repos = dict()
+    repos['user_sessions'] = UserSessionsRepository(app['redis'])
+    repos['watch_history'] = WatchHistoryRepository(app['db_engine'])
+    repos['watched'] = WatchedRepository(app['db_engine'])
+    app['repos'] = repos
+
+
 async def setup_services(app: web.Application):
-    app['services'] = dict()
-    app['services']['users'] = services.Users(app['redis'])
-    app['services']['watch_history'] = services.WatchHistory(app['db_engine'])
+    setup_repositories(app)
+    services = dict()
+    services['users'] = UsersService(app['repos']['user_sessions'])
+    services['watch_history'] = WatchHistoryService(
+        app['repos']['watch_history'], app['repos']['watched']
+    )
+    app['services'] = services
 
 
 def create_app(config: Config) -> web.Application:

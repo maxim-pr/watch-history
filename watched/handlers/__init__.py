@@ -1,8 +1,7 @@
 from aiohttp import web
 
-from .watch_history.add_film import AddFilm
+from .watch_history import register_watch_history_handlers
 
 
 def register_handlers(router: web.UrlDispatcher):
-    router.add_view('/watch_history/add_film', AddFilm)
-
+    register_watch_history_handlers(router)

@@ -1,4 +1,4 @@
-from .users import Users
-from .watch_history import WatchHistory
+from .users import UsersService
+from .watch_history import WatchHistoryService
 
-__all__ = ['Users', 'WatchHistory']
+__all__ = ['UsersService', 'WatchHistoryService']

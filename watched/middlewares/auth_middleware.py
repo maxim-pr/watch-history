@@ -2,7 +2,7 @@ from typing import Callable
 
 from aiohttp import web
 
-from .. import services
+from ..repositories.user_sessions import InvalidUserSession
 
 
 @web.middleware
@@ -12,7 +12,7 @@ async def auth_middleware(request: web.Request,
     if session_id is not None:
         try:
             user_id = await request.app['services']['users'].get_user_id(session_id)
-        except services.users.InvalidUserSession:
+        except InvalidUserSession:
             raise web.HTTPUnauthorized()
         else:
             request['user_id'] = user_id
