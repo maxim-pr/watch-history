@@ -35,12 +35,21 @@ Index('ix__user_id_datetime',
       watch_history_table.c.datetime)
 
 
+watch_history_films_table = Table(
+    'watch_history_films',
+    metadata,
+    Column('watch_event_id', Integer,
+           ForeignKey('watch_history.id', ondelete='CASCADE'),
+           primary_key=True),
+)
+
+
 watch_history_shows_table = Table(
     'watch_history_shows',
     metadata,
     Column('watch_event_id', Integer,
            ForeignKey('watch_history.id', ondelete='CASCADE'),
-           unique=True, nullable=False),
+           primary_key=True),
     Column('first_episode', SmallInteger),
     Column('last_episode', SmallInteger),
     Column('season', SmallInteger),

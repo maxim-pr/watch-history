@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -14,11 +14,11 @@ class WatchEventWithID(WatchEvent):
     id: str
 
 
-class WatchHistory(BaseModel):
-    __root__: list[WatchEventWithID]
-
-
 class WatchEventFilm(WatchEvent):
+    pass
+
+
+class WatchEventFilmWithID(WatchEventWithID, WatchEventFilm):
     pass
 
 
@@ -28,6 +28,14 @@ class WatchEventShow(WatchEvent):
     season: Optional[int]
     finished_season: bool = False
     finished_show: bool = False
+
+
+class WatchEventShowWithID(WatchEventWithID, WatchEventShow):
+    pass
+
+
+class WatchHistory(BaseModel):
+    __root__: list[Union[WatchEventFilmWithID, WatchEventShowWithID]]
 
 
 class Watched(BaseModel):
