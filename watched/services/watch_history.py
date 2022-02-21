@@ -1,6 +1,9 @@
 from typing import Optional
 
-from ..models import WatchEventFilm, WatchEventShow, WatchedFilm, WatchedShow
+from ..models import (
+    WatchHistory, WatchEventFilm, WatchEventShow,
+    WatchedFilm, WatchedShow
+)
 from ..repositories.watch_history import WatchHistoryRepository
 from ..repositories.watched import WatchedRepository
 
@@ -14,6 +17,7 @@ class WatchHistoryService:
         self._watched_repo = watched_repo
 
     async def add_film(self, film: WatchEventFilm) -> tuple[str, str]:
+        # TODO: add checks
         watch_event_id = await self._watch_history_repo.add_film(film)
         watched_id = await self._watched_repo.add(
             WatchedFilm(
@@ -24,8 +28,8 @@ class WatchHistoryService:
         return watch_event_id, watched_id
 
     async def add_show(self, show: WatchEventShow) -> tuple[str, Optional[str]]:
+        # TODO: add checks
         watch_event_id = await self._watch_history_repo.add_show(show)
-        # TODO: handle flags properly
         if show.finished_show:
             watched_id = await self._watched_repo.add(
                 WatchedShow(
@@ -36,3 +40,7 @@ class WatchHistoryService:
             return watch_event_id, watched_id
 
         return watch_event_id, None
+
+    async def get(self, user_id: str) -> WatchHistory:
+        watch_events = await self._watch_history_repo.get(user_id)
+        return WatchHistory.parse_obj(watch_events)

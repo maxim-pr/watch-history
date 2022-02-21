@@ -10,6 +10,14 @@ class WatchEvent(BaseModel):
     datetime: 'datetime' = Field(default_factory=datetime.now)
 
 
+class WatchEventWithID(WatchEvent):
+    id: str
+
+
+class WatchHistory(BaseModel):
+    __root__: list[WatchEventWithID]
+
+
 class WatchEventFilm(WatchEvent):
     pass
 
@@ -18,8 +26,8 @@ class WatchEventShow(WatchEvent):
     first_episode: Optional[int]
     last_episode: Optional[int]
     season: Optional[int]
-    finished_season: Optional[bool] = False
-    finished_show: Optional[bool] = False
+    finished_season: bool = False
+    finished_show: bool = False
 
 
 class Watched(BaseModel):

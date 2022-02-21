@@ -1,4 +1,5 @@
-from .auth_middleware import auth_middleware
-from .error_middleware import error_middleware
+from .auth import auth_middleware
+from .errors import errors_middleware
+from .json import json_middleware
 
-__all__ = ['auth_middleware', 'error_middleware']
+__all__ = ['auth_middleware', 'errors_middleware', 'json_middleware']

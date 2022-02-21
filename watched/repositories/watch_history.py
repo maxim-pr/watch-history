@@ -1,8 +1,11 @@
-from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.sql import insert, select
+from sqlalchemy.sql.expression import desc
 
 from ..db.schema import watch_history_table, watch_history_shows_table
-from ..models import WatchEvent, WatchEventFilm, WatchEventShow
+from ..models import (
+    WatchEvent, WatchEventWithID, WatchEventFilm, WatchEventShow
+)
 
 
 class WatchHistoryRepository:
@@ -40,3 +43,27 @@ class WatchHistoryRepository:
             result = await db_conn.execute(query)
         row = result.inserted_primary_key
         return str(row.id)
+
+    async def get(self, user_id: str) -> list[WatchEventWithID]:
+        query = select(
+            [watch_history_table.c.id,
+             watch_history_table.c.name,
+             watch_history_table.c.datetime]
+        ).where(
+            watch_history_table.c.user_id == int(user_id)
+        ).order_by(
+            desc(watch_history_table.c.datetime)
+        )
+
+        async with self._db_engine.begin() as db_conn:
+            result = await db_conn.execute(query)
+        rows = result.fetchall()
+
+        watch_events = [
+            WatchEventWithID.construct(
+                id=str(row.id),
+                name=row.name,
+                datetime=row.datetime)
+            for row in rows
+        ]
+        return watch_events

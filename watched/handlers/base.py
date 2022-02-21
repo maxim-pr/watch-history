@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from .. import services
+from ..services import WatchHistoryService
 
 
 class BaseHandler(web.View):
@@ -15,5 +15,5 @@ class BaseHandler(web.View):
         return self.request['user_id']
 
     @property
-    def watch_history_service(self) -> services.WatchHistoryService:
+    def watch_history_service(self) -> WatchHistoryService:
         return self.request.app['services']['watch_history']
