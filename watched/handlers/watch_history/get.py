@@ -1,14 +1,30 @@
 from aiohttp import web
 
 from ..base import BaseHandler
+from ...models import WatchHistoryTypeFilter, WatchHistoryStatusFilter
 
-FILTER_QUERY_PARAMS = ('only_films', 'only_shows', 'in_progress', 'finished')
 
-
-class GetHandler(BaseHandler):
+class GetWatchHistoryHandler(BaseHandler):
 
     async def get(self) -> tuple[str, int]:
+        try:
+            type_filter, status_filter = self._validate_filters()
+        except ValueError:
+            raise web.HTTPBadRequest()
+
         watch_history = await self.watch_history_service.get(
-            self.user_id, dict()
+            self.user_id, type_filter, status_filter
         )
         return watch_history.json(), web.HTTPOk.status_code
+
+    def _validate_filters(self) -> tuple[WatchHistoryTypeFilter,
+                                         WatchHistoryStatusFilter]:
+        type_filter = WatchHistoryTypeFilter.ALL
+        status_filter = WatchHistoryStatusFilter.ALL
+
+        if self.request.query.get('type') is not None:
+            type_filter = WatchHistoryTypeFilter(self.request.query['type'])
+        if self.request.query.get('status'):
+            status_filter = WatchHistoryStatusFilter(self.request.query['status'])
+
+        return type_filter, status_filter

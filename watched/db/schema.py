@@ -27,7 +27,8 @@ watch_history_table = Table(
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('user_id', Integer, nullable=False),
     Column('name', Text, nullable=False),
-    Column('datetime', DateTime, nullable=False)
+    Column('datetime', DateTime, nullable=False),
+    Column('is_show', Boolean, nullable=False)
 )
 
 Index('ix__user_id_datetime',
