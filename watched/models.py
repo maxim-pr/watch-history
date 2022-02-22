@@ -6,22 +6,15 @@ from pydantic import BaseModel, Field
 
 
 class WatchEvent(BaseModel):
+    id: Optional[str]
     user_id: str
     name: str
     datetime: 'datetime' = Field(default_factory=datetime.now)
     is_show: bool
 
 
-class WatchEventWithID(WatchEvent):
-    id: str
-
-
 class WatchEventFilm(WatchEvent):
     is_show: bool = False
-
-
-class WatchEventFilmWithID(WatchEventWithID, WatchEventFilm):
-    pass
 
 
 class WatchEventShow(WatchEvent):
@@ -33,12 +26,20 @@ class WatchEventShow(WatchEvent):
     finished_show: bool = False
 
 
-class WatchEventShowWithID(WatchEventWithID, WatchEventShow):
-    pass
-
-
 class WatchHistory(BaseModel):
-    __root__: list[Union[WatchEventFilmWithID, WatchEventShowWithID]]
+    __root__: list[Union[WatchEventFilm, WatchEventShow]]
+
+
+class WatchHistoryTypeFilter(Enum):
+    FILMS = 'films'
+    SHOWS = 'shows'
+    ALL = 'all'
+
+
+class WatchHistoryStatusFilter(Enum):
+    IN_PROGRESS = 'in_progress'
+    FINISHED = 'finished'
+    ALL = 'all'
 
 
 class Watched(BaseModel):
@@ -54,15 +55,3 @@ class WatchedFilm(Watched):
 
 class WatchedShow(Watched):
     watch_event: WatchEventShow
-
-
-class WatchHistoryTypeFilter(Enum):
-    FILMS = 'films'
-    SHOWS = 'shows'
-    ALL = 'all'
-
-
-class WatchHistoryStatusFilter(Enum):
-    IN_PROGRESS = 'in_progress'
-    FINISHED = 'finished'
-    ALL = 'all'

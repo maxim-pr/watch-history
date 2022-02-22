@@ -1,9 +1,9 @@
 from typing import Optional
 
 from ..models import (
-    WatchHistory, WatchEventFilm, WatchEventShow,
-    WatchedFilm, WatchedShow,
-    WatchHistoryTypeFilter, WatchHistoryStatusFilter
+    WatchEventFilm, WatchEventShow,
+    WatchHistory, WatchHistoryTypeFilter, WatchHistoryStatusFilter,
+    WatchedFilm, WatchedShow
 )
 from ..repositories.watch_history import WatchHistoryRepository
 from ..repositories.watched import WatchedRepository

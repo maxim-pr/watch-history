@@ -1,12 +1,12 @@
+from typing import Union
+
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.sql import insert, select, and_, Insert
 from sqlalchemy.sql.expression import desc
 
 from ..db.schema import watch_history_table, watch_history_shows_table
 from ..models import (
-    WatchEvent, WatchEventWithID,
-    WatchEventFilm, WatchEventFilmWithID,
-    WatchEventShow, WatchEventShowWithID,
+    WatchEvent, WatchEventFilm, WatchEventShow,
     WatchHistoryTypeFilter, WatchHistoryStatusFilter
 )
 
@@ -61,7 +61,7 @@ class WatchHistoryRepository:
             user_id: str,
             type_filter: WatchHistoryTypeFilter,
             status_filter: WatchHistoryStatusFilter
-    ) -> list[WatchEventWithID]:
+    ) -> list[Union[WatchEventFilm, WatchEventShow]]:
         columns = [
             watch_history_table.c.id,
             watch_history_table.c.name,
@@ -121,13 +121,13 @@ class WatchHistoryRepository:
         rows = result.fetchall()
 
         watch_events = [
-            WatchEventFilmWithID.construct(
+            WatchEventFilm.construct(
                 id=str(row.id),
                 name=row.name,
                 datetime=row.datetime,
                 is_show=False
             ) if not row.is_show else
-            WatchEventShowWithID.construct(
+            WatchEventShow.construct(
                 id=str(row.id),
                 name=row.name,
                 datetime=row.datetime,
