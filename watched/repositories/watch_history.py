@@ -1,24 +1,28 @@
 from typing import Union
 
 from sqlalchemy.ext.asyncio import AsyncEngine
-from sqlalchemy.sql import insert, select, and_, Insert
+from sqlalchemy.sql import insert, select, and_
 from sqlalchemy.sql.expression import desc
 
 from ..db.schema import watch_history_table, watch_history_shows_table
 from ..models import (
-    WatchEvent, WatchEventFilm, WatchEventShow,
+    WatchHistoryFilmRecord, WatchHistoryShowRecord,
     WatchHistoryTypeFilter, WatchHistoryStatusFilter
 )
 
 
-class WatchHistoryRepository:
+class WatchHistoryFilmsRepository:
 
     def __init__(self, db_engine: AsyncEngine):
         self._db_engine = db_engine
 
-    async def add_film(self, film: WatchEventFilm) -> str:
-        query = WatchHistoryRepository._insert_watch_event_query(film)
-        query = query.values(is_show=False)
+    async def add_film(self, film: WatchHistoryFilmRecord) -> str:
+        query = insert(watch_history_table).values(
+            user_id=int(film.user_id),
+            name=film.name,
+            datetime=film.datetime,
+            is_show=False
+        )
 
         async with self._db_engine.begin() as db_conn:
             result = await db_conn.execute(query)
@@ -26,9 +30,34 @@ class WatchHistoryRepository:
         row = result.inserted_primary_key
         return str(row.id)
 
-    async def add_show(self, show: WatchEventShow) -> str:
-        query1 = WatchHistoryRepository._insert_watch_event_query(show)
-        query1 = query1.values(is_show=True)
+    async def find_film_by_name(self, user_id: str, name: str) -> bool:
+        query = select([watch_history_table.c.id]).where(
+            and_(
+                watch_history_table.c.user_id == int(user_id),
+                watch_history_table.c.name == name
+            )
+        )
+        async with self._db_engine.begin() as db_conn:
+            result = await db_conn.execute(query)
+
+        if result.fetchone() is not None:
+            return True
+
+        return False
+
+
+class WatchHistoryShowsRepository:
+
+    def __init__(self, db_engine: AsyncEngine):
+        self._db_engine = db_engine
+
+    async def add_show(self, show: WatchHistoryShowRecord) -> str:
+        query1 = insert(watch_history_table).values(
+            user_id=int(show.user_id),
+            name=show.name,
+            datetime=show.datetime,
+            is_show=True
+        )
 
         query2 = insert(watch_history_shows_table).values(
             first_episode=show.first_episode,
@@ -40,28 +69,27 @@ class WatchHistoryRepository:
 
         async with self._db_engine.begin() as db_conn:
             result = await db_conn.execute(query1)
-            row = result.inserted_primary_key
-            watch_event_id = row.id
-            query2 = query2.values(watch_event_id=watch_event_id)
+            watch_history_record_id = result.inserted_primary_key.id
+            query2 = query2.values(
+                watch_history_record_id=watch_history_record_id
+            )
             await db_conn.execute(query2)
 
-        return str(watch_event_id)
+        return str(watch_history_record_id)
 
-    @staticmethod
-    def _insert_watch_event_query(watch_event: WatchEvent) -> Insert:
-        query = insert(watch_history_table).values(
-            user_id=int(watch_event.user_id),
-            name=watch_event.name,
-            datetime=watch_event.datetime
-        )
-        return query
 
-    async def get_watch_events(
+class WatchHistoryRepository(WatchHistoryFilmsRepository,
+                             WatchHistoryShowsRepository):
+
+    def __init__(self, db_engine: AsyncEngine):
+        super().__init__(db_engine)
+
+    async def get_watch_history_records(
             self,
             user_id: str,
             type_filter: WatchHistoryTypeFilter,
             status_filter: WatchHistoryStatusFilter
-    ) -> list[Union[WatchEventFilm, WatchEventShow]]:
+    ) -> list[Union[WatchHistoryFilmRecord, WatchHistoryShowRecord]]:
         columns = [
             watch_history_table.c.id,
             watch_history_table.c.name,
@@ -82,12 +110,14 @@ class WatchHistoryRepository:
             if type_filter == WatchHistoryTypeFilter.ALL:
                 table = table.outerjoin(
                     watch_history_shows_table,
-                    watch_history_table.c.id == watch_history_shows_table.c.watch_event_id
+                    watch_history_table.c.id ==
+                    watch_history_shows_table.c.watch_history_record_id
                 )
             elif type_filter == WatchHistoryTypeFilter.SHOWS:
                 table = table.join(
                     watch_history_shows_table,
-                    watch_history_table.c.id == watch_history_shows_table.c.watch_event_id
+                    watch_history_table.c.id ==
+                    watch_history_shows_table.c.watch_history_record_id
                 )
                 condition = and_(
                     condition,
@@ -120,14 +150,14 @@ class WatchHistoryRepository:
             result = await db_conn.execute(query)
         rows = result.fetchall()
 
-        watch_events = [
-            WatchEventFilm.construct(
+        records = [
+            WatchHistoryFilmRecord.construct(
                 id=str(row.id),
                 name=row.name,
                 datetime=row.datetime,
                 is_show=False
             ) if not row.is_show else
-            WatchEventShow.construct(
+            WatchHistoryShowRecord.construct(
                 id=str(row.id),
                 name=row.name,
                 datetime=row.datetime,
@@ -139,4 +169,4 @@ class WatchHistoryRepository:
                 finished_show=row.finished_show
             ) for row in rows
         ]
-        return watch_events
+        return records

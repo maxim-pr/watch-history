@@ -6,16 +6,16 @@ from ...models import WatchHistoryTypeFilter, WatchHistoryStatusFilter
 
 class GetWatchHistoryHandler(BaseHandler):
 
-    async def get(self) -> tuple[str, int]:
+    async def get(self) -> tuple[int, str]:
         try:
             type_filter, status_filter = self._validate_filters()
         except ValueError:
             raise web.HTTPBadRequest()
 
-        watch_history = await self.watch_history_service.get(
+        watch_history = await self.watch_history_service.get_watch_history(
             self.user_id, type_filter, status_filter
         )
-        return watch_history.json(), web.HTTPOk.status_code
+        return web.HTTPOk.status_code, watch_history.json()
 
     def _validate_filters(self) -> tuple[WatchHistoryTypeFilter,
                                          WatchHistoryStatusFilter]:

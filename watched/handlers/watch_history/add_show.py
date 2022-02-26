@@ -3,14 +3,14 @@ import json
 from aiohttp import web
 
 from ..base import BaseHandler
-from ...models import WatchEventShow
+from ...models import WatchHistoryShowRecord
 
 
 class AddShowHandler(BaseHandler):
 
-    async def post(self) -> tuple[str, int]:
+    async def post(self) -> tuple[int, str]:
         request_data = await self.request.json()
-        show = WatchEventShow(
+        show = WatchHistoryShowRecord(
             user_id=self.user_id,
             **request_data
         )
@@ -22,10 +22,10 @@ class AddShowHandler(BaseHandler):
             'watch_event_id': watch_event_id,
             'watched_id': watched_id
         }
-        return json.dumps(data), web.HTTPCreated.status_code
+        return web.HTTPCreated.status_code, json.dumps(data)
 
 
-def is_consistent(show: WatchEventShow) -> bool:
+def is_consistent(show: WatchHistoryShowRecord) -> bool:
     if show.first_episode is None and show.last_episode is None and \
             show.season is None and not show.finished_show:
         return False
