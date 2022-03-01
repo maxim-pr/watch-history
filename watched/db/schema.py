@@ -31,13 +31,7 @@ watch_history_table = Table(
     Column('is_show', Boolean, nullable=False)
 )
 
-Index('ix__user_id_datetime',
-      watch_history_table.c.user_id,
-      watch_history_table.c.datetime)
-
-Index('ix__user_id_name',
-      watch_history_table.c.user_id,
-      watch_history_table.c.name)
+Index('ix__user_id', watch_history_table.c.user_id)
 
 
 watch_history_films_table = Table(
@@ -66,10 +60,9 @@ watch_history_shows_table = Table(
 watched_table = Table(
     'watched',
     metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('watch_event_id', Integer,
+    Column('watch_history_record_id', Integer,
            ForeignKey('watch_history.id', ondelete='CASCADE'),
-           unique=True, nullable=False),
+           primary_key=True),
     Column('score', SmallInteger),
     Column('review', Text)
 )

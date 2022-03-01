@@ -1,15 +1,15 @@
 """Initial
 
-Revision ID: a1f720137b96
+Revision ID: fb88eed8822e
 Revises: 
-Create Date: 2022-02-27 00:55:22.040470
+Create Date: 2022-03-02 01:10:25.716029
 
 """
 import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision = 'a1f720137b96'
+revision = 'fb88eed8822e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,8 +25,7 @@ def upgrade():
     sa.Column('is_show', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__watch_history'))
     )
-    op.create_index('ix__user_id_datetime', 'watch_history', ['user_id', 'datetime'], unique=False)
-    op.create_index('ix__user_id_name', 'watch_history', ['user_id', 'name'], unique=False)
+    op.create_index('ix__user_id', 'watch_history', ['user_id'], unique=False)
     op.create_table('watch_history_films',
     sa.Column('watch_history_record_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['watch_history_record_id'], ['watch_history.id'], name=op.f('fk__watch_history_films__watch_history_record_id__watch_history'), ondelete='CASCADE'),
@@ -43,13 +42,11 @@ def upgrade():
     sa.PrimaryKeyConstraint('watch_history_record_id', name=op.f('pk__watch_history_shows'))
     )
     op.create_table('watched',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('watch_event_id', sa.Integer(), nullable=False),
+    sa.Column('watch_history_record_id', sa.Integer(), nullable=False),
     sa.Column('score', sa.SmallInteger(), nullable=True),
     sa.Column('review', sa.Text(), nullable=True),
-    sa.ForeignKeyConstraint(['watch_event_id'], ['watch_history.id'], name=op.f('fk__watched__watch_event_id__watch_history'), ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id', name=op.f('pk__watched')),
-    sa.UniqueConstraint('watch_event_id', name=op.f('uq__watched__watch_event_id'))
+    sa.ForeignKeyConstraint(['watch_history_record_id'], ['watch_history.id'], name=op.f('fk__watched__watch_history_record_id__watch_history'), ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('watch_history_record_id', name=op.f('pk__watched'))
     )
     # ### end Alembic commands ###
 
@@ -59,7 +56,6 @@ def downgrade():
     op.drop_table('watched')
     op.drop_table('watch_history_shows')
     op.drop_table('watch_history_films')
-    op.drop_index('ix__user_id_name', table_name='watch_history')
-    op.drop_index('ix__user_id_datetime', table_name='watch_history')
+    op.drop_index('ix__user_id', table_name='watch_history')
     op.drop_table('watch_history')
     # ### end Alembic commands ###

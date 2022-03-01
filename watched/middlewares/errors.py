@@ -19,8 +19,8 @@ async def errors_middleware(request: web.Request,
     except ValidationError as e:
         logger.info(e)
         return web.Response(status=web.HTTPBadRequest.status_code)
-    except web.HTTPClientError as e:
-        raise e
+    except web.HTTPError as e:
+        return web.Response(status=e.status_code)
     except Exception as e:
         logger.exception(e)
         return web.Response(status=web.HTTPInternalServerError.status_code)
