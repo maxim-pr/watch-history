@@ -27,7 +27,6 @@ class WatchHistoryShowRecord(WatchHistoryRecord):
 
     @root_validator
     def validate_1(cls, v: dict) -> dict:
-        print(type(v))
         if v['first_episode'] is None and v['last_episode'] is None and \
                 v['season'] is None and not v['finished_show']:
             raise ValueError()

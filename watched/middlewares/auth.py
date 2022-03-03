@@ -18,7 +18,7 @@ async def auth_middleware(request: web.Request,
                 get_user_id(session_id)
         except InvalidUserSession as e:
             logger.info(e)
-            raise web.HTTPUnauthorized()
+            return web.HTTPUnauthorized()
         else:
             request['user_id'] = user_id
 

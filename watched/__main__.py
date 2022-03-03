@@ -9,7 +9,7 @@ from .config import Config, DBConfig, RedisConfig, read_config
 from .handlers import register_handlers
 from .logger import setup_logger
 from .middlewares import logging_middleware, auth_middleware, \
-    errors_middleware, json_middleware
+    errors_middleware
 from .repositories import UserSessionsRepository, WatchHistoryRepository
 from .services import UsersService, WatchHistoryService
 
@@ -51,7 +51,7 @@ async def setup_services(app: web.Application):
 def create_app(config: Config) -> web.Application:
     setup_logger(config.log_level)
     app = web.Application(middlewares=[logging_middleware, errors_middleware,
-                                       auth_middleware, json_middleware])
+                                       auth_middleware])
     app.cleanup_ctx.append(partial(setup_db_engine, db_config=config.db))
     app.cleanup_ctx.append(partial(setup_redis, redis_config=config.redis))
     app.on_startup.append(setup_services)
