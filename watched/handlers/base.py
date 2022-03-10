@@ -1,6 +1,6 @@
 from aiohttp import web
 
-from ..services import WatchHistoryService
+from ..services.watch_history import WatchHistoryService
 
 
 class BaseHandler(web.View):

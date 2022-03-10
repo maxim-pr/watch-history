@@ -14,4 +14,4 @@ def register_watch_history_handlers(router: web.UrlDispatcher):
     router.add_post(PREFIX + '/shows', AddShowRecordHandler)
     router.add_put(PREFIX + '/films/{id}', UpdateFilmRecordHandler)
     router.add_put(PREFIX + '/shows/{id}', UpdateShowRecordHandler)
-    router.add_delete(PREFIX + '{id}', DeleteRecordHandler)
+    router.add_delete(PREFIX + '/{id}', DeleteRecordHandler)

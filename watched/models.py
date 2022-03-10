@@ -8,17 +8,19 @@ from pydantic import BaseModel, Field, root_validator
 class WatchHistoryRecord(BaseModel):
     id: Optional[str]
     user_id: str
-    name: str
     datetime: 'datetime' = Field(default_factory=datetime.now)
     is_show: bool
 
 
 class WatchHistoryFilmRecord(WatchHistoryRecord):
     is_show: bool = False
+    film_name: str
 
 
 class WatchHistoryShowRecord(WatchHistoryRecord):
     is_show: bool = True
+    show_id: Optional[str]
+    show_name: Optional[str]
     first_episode: Optional[int]
     last_episode: Optional[int]
     season: Optional[int]

@@ -4,7 +4,7 @@ from aiohttp import web
 
 from ..base import BaseHandler
 from ...models import WatchHistoryFilmRecord, WatchHistoryShowRecord
-from ...services.watch_history import RecordDoesNotExistError
+from ...services.watch_history import RecordDoesNotExist
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +21,8 @@ class UpdateFilmRecordHandler(BaseHandler):
         )
 
         try:
-            await self.watch_history_service.update_film(film)
-        except RecordDoesNotExistError as e:
+            await self.watch_history_service.update_film_record(film)
+        except RecordDoesNotExist as e:
             logger.info(e)
             return web.HTTPNotFound()
 
@@ -41,8 +41,8 @@ class UpdateShowRecordHandler(BaseHandler):
         )
 
         try:
-            await self.watch_history_service.update_show(show)
-        except RecordDoesNotExistError as e:
+            await self.watch_history_service.update_show_record(show)
+        except RecordDoesNotExist as e:
             logger.info(e)
             return web.HTTPNotFound()
 

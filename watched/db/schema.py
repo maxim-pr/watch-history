@@ -26,7 +26,6 @@ watch_history_table = Table(
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('user_id', Integer, nullable=False),
-    Column('name', Text, nullable=False),
     Column('datetime', DateTime, nullable=False),
     Column('is_show', Boolean, nullable=False)
 )
@@ -37,18 +36,22 @@ Index('ix__user_id', watch_history_table.c.user_id)
 watch_history_films_table = Table(
     'watch_history_films',
     metadata,
-    Column('watch_history_record_id', Integer,
-           ForeignKey('watch_history.id', ondelete='CASCADE'),
-           primary_key=True)
+    Column('id', Integer,
+           ForeignKey('watch_history.id', ondelete='CASCADE', onupdate='CASCADE'),
+           primary_key=True),
+    Column('film_name', Text, nullable=False)
 )
 
 
 watch_history_shows_table = Table(
     'watch_history_shows',
     metadata,
-    Column('watch_history_record_id', Integer,
-           ForeignKey('watch_history.id', ondelete='CASCADE'),
+    Column('id', Integer,
+           ForeignKey('watch_history.id', ondelete='CASCADE', onupdate='CASCADE'),
            primary_key=True),
+    Column('show_id', Integer,
+           ForeignKey('shows.id', ondelete='CASCADE', onupdate='CASCADE'),
+           nullable=False),
     Column('first_episode', SmallInteger),
     Column('last_episode', SmallInteger),
     Column('season', SmallInteger),
@@ -57,11 +60,20 @@ watch_history_shows_table = Table(
 )
 
 
+shows_table = Table(
+    'shows',
+    metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('user_id', Integer, nullable=False),
+    Column('name', Text, nullable=False)
+)
+
+
 watched_table = Table(
     'watched',
     metadata,
-    Column('watch_history_record_id', Integer,
-           ForeignKey('watch_history.id', ondelete='CASCADE'),
+    Column('id', Integer,
+           ForeignKey('watch_history.id', ondelete='CASCADE', onupdate='CASCADE'),
            primary_key=True),
     Column('score', SmallInteger),
     Column('review', Text)

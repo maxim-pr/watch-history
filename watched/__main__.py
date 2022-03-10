@@ -10,8 +10,10 @@ from .handlers import register_handlers
 from .logger import setup_logger
 from .middlewares import logging_middleware, auth_middleware, \
     errors_middleware
-from .repositories import UserSessionsRepository, WatchHistoryRepository
-from .services import UsersService, WatchHistoryService
+from .repositories.user_sessions import UserSessionsRepository
+from .repositories.watch_history import WatchHistoryRepository
+from .services.users import UsersService
+from .services.watch_history import WatchHistoryService
 
 logger = logging.getLogger(__name__)
 
