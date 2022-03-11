@@ -5,7 +5,7 @@ from aiohttp import web
 from aioredis import Redis
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from .config import Config, DBConfig, RedisConfig, read_config
+from .config import DBConfig, RedisConfig, read_config
 from .handlers import register_handlers
 from .logger import setup_logger
 from .middlewares import logging_middleware, auth_middleware, \
@@ -50,7 +50,8 @@ async def setup_services(app: web.Application):
     app['services'] = services
 
 
-def create_app(config: Config) -> web.Application:
+def create_app() -> web.Application:
+    config = read_config()
     setup_logger(config.log_level)
     app = web.Application(middlewares=[logging_middleware, errors_middleware,
                                        auth_middleware])
@@ -62,13 +63,11 @@ def create_app(config: Config) -> web.Application:
 
 
 def main():
-    try:
-        config = read_config()
-    except Exception as e:
-        logger.exception(e)
-        return
-
-    app = create_app(config)
+    app = create_app()
     logger.info('starting application')
-    web.run_app(app, host=config.api.host, port=config.api.port)
+    web.run_app(app, host='0.0.0.0', port=8080)
     logger.info('application stopped')
+
+
+if __name__ == '__main__':
+    main()
