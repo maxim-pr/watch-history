@@ -55,7 +55,7 @@ request_jsons = [
 
 
 @pytest.mark.parametrize('request_json', request_jsons)
-async def test_add_film_record_4xx(client: TestClient, request_json: dict):
+async def test_add_show_record_4xx(client: TestClient, request_json: dict):
     response = await client.post('/watch_history/shows', json=request_json)
 
     assert response.status == 400
