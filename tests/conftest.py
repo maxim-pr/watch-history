@@ -5,6 +5,7 @@ from aiohttp import CookieJar
 from aiohttp import web
 from aiohttp.test_utils import TestClient, TestServer
 
+from watched.__main__ import create_services
 from watched.handlers import register_handlers
 from watched.middlewares import logging_middleware, errors_middleware, \
     auth_middleware
@@ -13,28 +14,28 @@ SESSION_ID = '123'
 USER_ID = '123'
 
 
-def setup_stub_services(app: web.Application):
-    users_service = Mock()
-    users_service.get_user_id = AsyncMock()
-    users_service.get_user_id.return_value = USER_ID
+def create_repos_stubs(app: web.Application):
+    repos = dict()
+    user_sessions_repo = Mock()
+    user_sessions_repo.get_user_id = AsyncMock()
+    user_sessions_repo.get_user_id.return_value = USER_ID
+    repos['user_sessions'] = user_sessions_repo
+    repos['watch_history'] = Mock()
+    app['repos'] = repos
 
-    services = dict()
-    services['users'] = users_service
-    services['watch_history'] = Mock()
-    app['services'] = services
 
-
-def create_app() -> web.Application:
+async def create_app() -> web.Application:
     app = web.Application(middlewares=[logging_middleware, errors_middleware,
                                        auth_middleware])
-    setup_stub_services(app)
+    create_repos_stubs(app)
+    await create_services(app)
     register_handlers(app.router)
     return app
 
 
 @pytest.fixture
 async def client() -> TestClient:
-    app = create_app()
+    app = await create_app()
     cookie_jar = CookieJar(unsafe=True,
                            treat_as_secure_origin="http://localhost:8080")
     cookie_jar.update_cookies({'session_id': SESSION_ID})

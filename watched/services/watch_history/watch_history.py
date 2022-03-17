@@ -3,7 +3,8 @@ from watched.models import (
     WatchHistory, WatchHistoryTypeFilter, WatchHistoryStatusFilter,
 )
 from watched.repositories.watch_history import WatchHistoryRepository
-from .errors import RecordDoesNotExist, FilmAlreadyWatched, InconsistentShowRecord
+from .errors import RecordDoesNotExist, FilmAlreadyWatched,\
+    InconsistentShowRecord
 
 
 class WatchHistoryService:
@@ -41,7 +42,7 @@ class WatchHistoryService:
             )
         else:
             last_record = await self._watch_history_repo.\
-                get_last_show_record(record.user_id, record.show_id)
+                get_prev_show_record(record.user_id, record.show_id, record.datetime)
             if not self._validate_show_record(record, last_record):
                 raise InconsistentShowRecord(last_record)
 

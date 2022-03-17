@@ -50,12 +50,13 @@ class AddShowRecordHandler(BaseHandler):
             return web.HTTPBadRequest()
 
         try:
-            record_id = await self.watch_history_service.add_show_record(show_record)
+            record_id = await self.watch_history_service.\
+                add_show_record(show_record)
         except InconsistentShowRecord as e:
             response_data = {
                 'error': {
                     'message': 'inconsistent show record',
-                    'last_show_record': e.last_show_record.dict()
+                    'last_show_record': e.last_show_record.json()
                 }
             }
             return web.json_response(data=response_data,

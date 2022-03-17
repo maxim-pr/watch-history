@@ -33,15 +33,14 @@ async def setup_redis(app: web.Application, redis_config: RedisConfig):
     await app['redis'].close()
 
 
-def setup_repositories(app: web.Application):
+async def create_repos(app: web.Application):
     repos = dict()
     repos['user_sessions'] = UserSessionsRepository(app['redis'])
     repos['watch_history'] = WatchHistoryRepository(app['db_engine'])
     app['repos'] = repos
 
 
-async def setup_services(app: web.Application):
-    setup_repositories(app)
+async def create_services(app: web.Application):
     services = dict()
     services['users'] = UsersService(app['repos']['user_sessions'])
     services['watch_history'] = WatchHistoryService(
@@ -57,7 +56,8 @@ def create_app() -> web.Application:
                                        auth_middleware])
     app.cleanup_ctx.append(partial(setup_db_engine, db_config=config.db))
     app.cleanup_ctx.append(partial(setup_redis, redis_config=config.redis))
-    app.on_startup.append(setup_services)
+    app.on_startup.append(create_repos)
+    app.on_startup.append(create_services)
     register_handlers(app.router)
     return app
 

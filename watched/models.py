@@ -21,28 +21,35 @@ class WatchHistoryShowRecord(WatchHistoryRecord):
     is_show: bool = True
     show_id: Optional[str]
     show_name: Optional[str]
+    season: Optional[int]
     first_episode: Optional[int]
     last_episode: Optional[int]
-    season: Optional[int]
     finished_season: bool = False
     finished_show: bool = False
 
     @root_validator
     def validate_1(cls, v: dict) -> dict:
+        if v['first_episode'] is not None and v['last_episode'] is not None \
+                and v['first_episode'] >= v['last_episode']:
+            raise ValueError()
+        return v
+
+    @root_validator
+    def validate_2(cls, v: dict) -> dict:
         if v['first_episode'] is None and v['last_episode'] is None and \
                 v['season'] is None and not v['finished_show']:
             raise ValueError()
         return v
 
     @root_validator
-    def validate_2(cls, v: dict) -> dict:
+    def validate_3(cls, v: dict) -> dict:
         if v['season'] is not None and v['first_episode'] is None and \
                 not v['finished_season']:
             raise ValueError()
         return v
 
     @root_validator
-    def validate_3(cls, v: dict) -> dict:
+    def validate_4(cls, v: dict) -> dict:
         if v['finished_season'] and v['season'] is None:
             raise ValueError()
         return v

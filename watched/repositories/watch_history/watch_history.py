@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Union, Optional
 
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -179,10 +180,11 @@ class WatchHistoryShowsRepository(WatchHistoryBaseRepository):
             return False
         return is_show
 
-    async def get_last_show_record(
+    async def get_prev_show_record(
             self,
             user_id: str,
-            show_id: str
+            show_id: str,
+            datetime_: datetime
     ) -> Optional[WatchHistoryShowRecord]:
         query = select([
             watch_history_table.c.id,
@@ -200,7 +202,8 @@ class WatchHistoryShowsRepository(WatchHistoryBaseRepository):
         ).where(
             and_(
                 watch_history_table.c.user_id == int(user_id),
-                watch_history_films_table.c.show_id == int(show_id)
+                watch_history_shows_table.c.show_id == int(show_id),
+                watch_history_table.c.datetime < datetime_
             )
         ).order_by(desc(watch_history_table.c.datetime)).limit(1)
 
@@ -230,8 +233,7 @@ class WatchHistoryRepository(WatchHistoryFilmsRepository,
         super().__init__(db_engine)
 
     async def get_watch_history_records(
-            self,
-            user_id: str,
+            self, user_id: str,
             type_filter: WatchHistoryTypeFilter,
             status_filter: WatchHistoryStatusFilter
     ) -> list[Union[WatchHistoryFilmRecord, WatchHistoryShowRecord]]:
