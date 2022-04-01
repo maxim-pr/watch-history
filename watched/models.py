@@ -2,85 +2,75 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, Union
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, root_validator
 
 
-class WatchHistoryRecord(BaseModel):
-    id: Optional[str]
+class MediaType(Enum):
+    FILM = 'film'
+    SHOW = 'show'
+
+
+class BaseRecord(BaseModel):
+    id: str
     user_id: str
-    datetime: 'datetime' = Field(default_factory=datetime.now)
-    is_show: bool
+    datetime: datetime
+    media_id: str
+    type: MediaType
+    name: str
 
 
-class WatchHistoryFilmRecord(WatchHistoryRecord):
-    is_show: bool = False
-    film_name: str
+class FilmRecord(BaseRecord):
+    type: MediaType = MediaType.FILM
 
 
-class WatchHistoryShowRecord(WatchHistoryRecord):
-    is_show: bool = True
-    show_id: Optional[str]
-    show_name: Optional[str]
+class ShowRecord(BaseRecord):
+    type: MediaType = MediaType.SHOW
     season: Optional[int]
-    first_episode: Optional[int]
-    last_episode: Optional[int]
+    ep1: Optional[int]
+    ep2: Optional[int]
     finished_season: bool = False
     finished_show: bool = False
 
-    @root_validator
-    def validate_1(cls, v: dict) -> dict:
-        if v['first_episode'] is not None and v['last_episode'] is not None \
-                and v['first_episode'] >= v['last_episode']:
-            raise ValueError()
-        return v
 
-    @root_validator
-    def validate_2(cls, v: dict) -> dict:
-        if v['first_episode'] is None and v['last_episode'] is None and \
-                v['season'] is None and not v['finished_show']:
-            raise ValueError()
-        return v
-
-    @root_validator
-    def validate_3(cls, v: dict) -> dict:
-        if v['season'] is not None and v['first_episode'] is None and \
-                not v['finished_season']:
-            raise ValueError()
-        return v
-
-    @root_validator
-    def validate_4(cls, v: dict) -> dict:
-        if v['finished_season'] and v['season'] is None:
-            raise ValueError()
-        return v
+Record = Union[FilmRecord, ShowRecord]
 
 
 class WatchHistory(BaseModel):
-    __root__: list[Union[WatchHistoryFilmRecord, WatchHistoryShowRecord]]
+    __root__: list[Record]
 
 
-class WatchHistoryTypeFilter(Enum):
+class TypeFilter(Enum):
     FILMS = 'films'
     SHOWS = 'shows'
     ALL = 'all'
 
 
-class WatchHistoryStatusFilter(Enum):
+class StatusFilter(Enum):
     IN_PROGRESS = 'in_progress'
     FINISHED = 'finished'
     ALL = 'all'
 
 
-class Watched(BaseModel):
-    watch_history_record_id: str
-    watch_history_record: WatchHistoryRecord
+class Media(BaseModel):
+    id: str
+    type: MediaType
+    name: str
+
+
+class Film(Media):
+    type = MediaType.FILM
+
+
+class Show(Media):
+    type = MediaType.SHOW
+
+
+class Review(BaseModel):
     score: Optional[int]
     review: Optional[str]
 
-
-class WatchedFilm(Watched):
-    watch_history_record: WatchHistoryFilmRecord
-
-
-class WatchedShow(Watched):
-    watch_history_record: WatchHistoryShowRecord
+    @root_validator
+    def validate_score_review(cls, v: dict) -> dict:
+        if v['score'] is None and v['review'] is None:
+            raise ValueError()
+        return v

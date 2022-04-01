@@ -1,8 +1,7 @@
 import logging
 
 
-def setup_logger(log_level: str):
-    logger = logging.getLogger(__package__)
+def setup_logger(logger: logging.Logger, log_level: str):
     logger.setLevel(log_level)
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(log_level)

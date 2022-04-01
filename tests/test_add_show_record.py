@@ -4,7 +4,7 @@ import pytest
 from aiohttp import web
 from aiohttp.test_utils import TestClient
 
-from watched.models import WatchHistoryShowRecord
+from watched.models import ShowRecord
 from .conftest import USER_ID
 
 SHOW_ID = '1'
@@ -17,7 +17,7 @@ def setup_watch_history_repo_stub(app: web.Application):
     repo.add_show = AsyncMock()
     repo.add_show.return_value = SHOW_ID
     repo.get_prev_show_record = AsyncMock()
-    repo.get_prev_show_record.return_value = WatchHistoryShowRecord(
+    repo.get_prev_show_record.return_value = ShowRecord(
         id='1', user_id=USER_ID, datetime='2021-03-17T02:05:10.632472',
         show_id=SHOW_ID, show_name=SHOW_NAME, season=1, first_episode=1
     )

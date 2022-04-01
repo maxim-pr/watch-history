@@ -9,8 +9,8 @@ setup(
     packages=find_packages(include=['watched']),
     entry_points={
         'console_scripts': [
-            '{0}-api = {0}.__main__:main'.format(PACKAGE_NAME),
-            '{0}-db = {0}.db.__main__:main'.format(PACKAGE_NAME)
+            '{0}-api = {0}.app.app:main'.format(PACKAGE_NAME),
+            '{0}-db = {0}.storage.db.__main__:main'.format(PACKAGE_NAME)
         ]
     }
 )

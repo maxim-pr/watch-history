@@ -4,10 +4,10 @@ import pytest
 from aiohttp import CookieJar
 from aiohttp import web
 from aiohttp.test_utils import TestClient, TestServer
+from watched.app.__main__ import create_services
 
-from watched.__main__ import create_services
-from watched.handlers import register_handlers
-from watched.middlewares import logging_middleware, errors_middleware, \
+from watched.api.handlers import register_handlers
+from watched.api.middlewares import logging_middleware, errors_middleware, \
     auth_middleware
 
 SESSION_ID = '123'
