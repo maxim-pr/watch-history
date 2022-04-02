@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Optional
 
 from watched.models import BaseRecord, ShowRecord, Record
-from .dto import (
-    AddMediaDTO, AddFilmRecordDTO, UpdateFilmRecordDTO,
-    AddShowRecordDTO, UpdateShowRecordDTO, GetPrevShowRecordDTO,
-    GetWatchHistoryRecordsDTO
-)
+from .dto import AddMediaDTO, AddFilmRecordDTO, AddShowRecordDTO, \
+    GetPrevShowRecordDTO, GetRecordsDTO
 
 
 class Storage(ABC):
@@ -34,6 +32,14 @@ class Storage(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    async def update_media_name(self, media_id: str, name: str) -> bool:
+        """
+        :return: flag whether media_id refers to existent media
+        (i.e. that the media was indeed updated)
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     async def delete_media(self, media_id: str) -> bool:
         """
         :return: flag whether media_id refers to existent media
@@ -49,9 +55,10 @@ class Storage(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def update_film_record(self, dto: UpdateFilmRecordDTO) -> bool:
+    async def update_film_record_datetime(self, record_id: str,
+                                          dt: datetime) -> bool:
         """
-        :return: flag whether dto.record_id refers to existent record
+        :return: flag whether record_id refers to existent record
         (i.e. that the update was indeed performed)
         """
         raise NotImplementedError()
@@ -72,19 +79,10 @@ class Storage(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def update_show_record(self, dto: UpdateShowRecordDTO) -> bool:
-        """
-        :return: flag whether dto.record_id refers to existent record
-        (i.e. that the update was indeed performed)
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
     async def get_prev_show_record(
             self, dto: GetPrevShowRecordDTO) -> Optional[ShowRecord]:
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_watch_history_records(
-            self, dto: GetWatchHistoryRecordsDTO) -> list[Record]:
+    async def get_records(self, dto: GetRecordsDTO) -> list[Record]:
         raise NotImplementedError()

@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, Union
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel
 
 
 class MediaType(Enum):
@@ -10,21 +10,33 @@ class MediaType(Enum):
     SHOW = 'show'
 
 
-class BaseRecord(BaseModel):
+class Media(BaseModel):
     id: str
-    user_id: str
-    datetime: datetime
-    media_id: str
     type: MediaType
     name: str
 
 
+class Film(Media):
+    type = MediaType.FILM
+
+
+class Show(Media):
+    type = MediaType.SHOW
+
+
+class BaseRecord(BaseModel):
+    id: str
+    user_id: str
+    datetime: datetime
+    media: Media
+
+
 class FilmRecord(BaseRecord):
-    type: MediaType = MediaType.FILM
+    media: Film
 
 
 class ShowRecord(BaseRecord):
-    type: MediaType = MediaType.SHOW
+    media: Show
     season: Optional[int]
     ep1: Optional[int]
     ep2: Optional[int]
@@ -51,26 +63,6 @@ class StatusFilter(Enum):
     ALL = 'all'
 
 
-class Media(BaseModel):
-    id: str
-    type: MediaType
-    name: str
-
-
-class Film(Media):
-    type = MediaType.FILM
-
-
-class Show(Media):
-    type = MediaType.SHOW
-
-
 class Review(BaseModel):
     score: Optional[int]
     review: Optional[str]
-
-    @root_validator
-    def validate_score_review(cls, v: dict) -> dict:
-        if v['score'] is None and v['review'] is None:
-            raise ValueError()
-        return v

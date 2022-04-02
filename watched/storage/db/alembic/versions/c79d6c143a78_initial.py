@@ -1,8 +1,8 @@
 """Initial
 
-Revision ID: fef27eaa0194
+Revision ID: c79d6c143a78
 Revises: 
-Create Date: 2022-04-02 01:43:06.336601
+Create Date: 2022-04-02 13:52:48.296624
 
 """
 import sqlalchemy as sa
@@ -10,7 +10,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'fef27eaa0194'
+revision = 'c79d6c143a78'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -45,7 +45,7 @@ def upgrade():
     sa.Column('season', sa.SmallInteger(), nullable=True),
     sa.Column('ep1', sa.SmallInteger(), nullable=True),
     sa.Column('ep2', sa.SmallInteger(), nullable=True),
-    sa.Column('finished_season', sa.Boolean(), nullable=False),
+    sa.Column('finished_season', sa.Boolean(), nullable=True),
     sa.Column('finished_show', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['id'], ['watch_history.id'], name=op.f('fk__watch_history_shows__id__watch_history'), onupdate='CASCADE', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id', name=op.f('pk__watch_history_shows'))

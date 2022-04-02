@@ -12,6 +12,12 @@ class AddMediaDTO:
 
 
 @dataclass(slots=True)
+class UpdateMediaNameDTO:
+    id: str
+    name: str
+
+
+@dataclass(slots=True)
 class AddFilmRecordDTO:
     user_id: str
     datetime: 'datetime'
@@ -34,7 +40,7 @@ class AddShowRecordDTO:
     season: Optional[int]
     ep1: Optional[int]
     ep2: Optional[int]
-    finished_season: bool
+    finished_season: Optional[bool]
     finished_show: bool
 
 
@@ -47,7 +53,7 @@ class UpdateShowRecordDTO:
     season: Optional[int]
     ep1: Optional[int]
     ep2: Optional[int]
-    finished_season: bool
+    finished_season: Optional[bool]
     finished_show: bool
 
 
@@ -59,7 +65,7 @@ class GetPrevShowRecordDTO:
 
 
 @dataclass(slots=True)
-class GetWatchHistoryRecordsDTO:
+class GetRecordsDTO:
     user_id: str
     type_filter: TypeFilter
     status_filter: StatusFilter

@@ -34,7 +34,7 @@ class FilmAlreadyWatched(DomainError):
         super().__init__()
 
 
-class InconsistentShowRecord(DomainError):
+class ShowRecordInconsistency(DomainError):
     def __init__(self, prev_record: ShowRecord):
         self.prev_record = prev_record
         super().__init__('show record to be inserted is not consistent'

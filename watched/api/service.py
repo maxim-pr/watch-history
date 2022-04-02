@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 
 from watched.models import WatchHistory
-from .dto import AddFilmRecordDTO, UpdateFilmRecordDTO, AddShowRecordDTO
+from .dto import AddFilmRecordDTO, UpdateFilmRecordDTO, AddShowRecordDTO, \
+    GetWatchHistoryDTO
 
 
 class Service(ABC):
@@ -25,12 +26,12 @@ class Service(ABC):
     @abstractmethod
     async def add_show_record(self, dto: AddShowRecordDTO) -> str:
         """
-        Raises :class:`InconsistentShowRecord`
+        Raises :class:`ShowRecordInconsistency`
 
         :return: id of added record
         """
         raise NotImplementedError()
 
     @abstractmethod
-    async def get_watch_history(self) -> WatchHistory:
+    async def get_watch_history(self, dto: GetWatchHistoryDTO) -> WatchHistory:
         raise NotImplementedError()

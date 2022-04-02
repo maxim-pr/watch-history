@@ -40,7 +40,7 @@ watch_history_shows_table = Table(
     Column('season', SmallInteger),
     Column('ep1', SmallInteger),
     Column('ep2', SmallInteger),
-    Column('finished_season', Boolean, nullable=False),
+    Column('finished_season', Boolean),
     Column('finished_show', Boolean, nullable=False)
 )
 

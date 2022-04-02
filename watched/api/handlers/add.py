@@ -2,7 +2,7 @@ from aiohttp import web
 
 from .base import BaseHandler
 from ..dto import AddFilmRecordDTO, AddShowRecordDTO
-from ..errors import FilmAlreadyWatched, InconsistentShowRecord
+from ..errors import FilmAlreadyWatched, ShowRecordInconsistency
 
 
 class AddFilmRecordHandler(BaseHandler):
@@ -36,7 +36,7 @@ class AddShowRecordHandler(BaseHandler):
 
         try:
             record_id, media_id = await self.service.add_show_record(dto)
-        except InconsistentShowRecord as e:
+        except ShowRecordInconsistency as e:
             response_data = {
                 'error': {
                     'message': 'inconsistent show record',

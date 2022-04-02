@@ -33,7 +33,8 @@ async def errors_middleware(request: web.Request,
         return await handler(request)
     except json.JSONDecodeError:
         return web.Response(status=web.HTTPBadRequest.status_code)
-    except ValidationError:
+    except ValidationError as e:
+        logger.info(e)
         response_data = {
             'error': {
                 'message': 'invalid request data'

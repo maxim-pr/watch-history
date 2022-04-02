@@ -1,13 +1,11 @@
 from watched.api import dto as in_dto
 from watched.api.errors import (
     AccessError, RecordDoesNotExist, FilmAlreadyWatched,
-    InconsistentShowRecord, MediaTypeInconsistency
+    ShowRecordInconsistency, MediaTypeInconsistency
 )
-from watched.models import MediaType, ShowRecord
-from .dto import (
-    AddMediaDTO, AddFilmRecordDTO, UpdateFilmRecordDTO, GetPrevShowRecordDTO,
-    AddShowRecordDTO
-)
+from watched.models import MediaType, ShowRecord, WatchHistory
+from .dto import AddMediaDTO, AddFilmRecordDTO, AddShowRecordDTO,\
+    GetPrevShowRecordDTO, GetRecordsDTO
 from .storage import Storage
 
 
@@ -36,13 +34,16 @@ class Service:
             raise RecordDoesNotExist(dto.record_id)
         if record.user_id != dto.user_id:
             raise AccessError(dto.record_id, dto.user_id)
-        if record.type != MediaType.FILM:
-            raise MediaTypeInconsistency(MediaType.FILM, record.type)
+        if record.media.type != MediaType.FILM:
+            raise MediaTypeInconsistency(MediaType.FILM, record.media.type)
 
-        if dto.name != record.name:
-            await self._storage.delete_media(record.media_id)
-        update_film_record_dto = UpdateFilmRecordDTO(**dto.dict())
-        await self._storage.update_film_record(update_film_record_dto)
+        if dto.name != record.media.name:
+            await self._storage.update_media_name(media_id=record.media.id,
+                                                  name=dto.name)
+        if dto.datetime != record.datetime:
+            await self._storage.update_film_record_datetime(
+                record_id=dto.record_id, dt=dto.datetime
+            )
 
     async def add_show_record(self,
                               dto: in_dto.AddShowRecordDTO) -> tuple[str, str]:
@@ -59,7 +60,7 @@ class Service:
                 get_prev_show_record_dto
             )
             if not self._validate_against_prev_record(dto, prev_record):
-                raise InconsistentShowRecord(prev_record)
+                raise ShowRecordInconsistency(prev_record)
 
         add_show_record_dto = AddShowRecordDTO(
             user_id=dto.user_id, datetime=dto.datetime, media_id=media_id,
@@ -73,24 +74,32 @@ class Service:
     @staticmethod
     def _validate_against_prev_record(dto: in_dto.AddShowRecordDTO,
                                       prev_record: ShowRecord) -> bool:
-        if prev_record.finished_season:
+        if prev_record.finished_show:
             return False
+
+        if prev_record.season is None and dto.season is not None:
+            return False
+        if prev_record.season is not None and dto.season is None:
+            return False
+
         if prev_record.season is not None and dto.season is not None:
             if prev_record.season > dto.season:
                 return False
-            if prev_record.season == dto.season and \
-                    prev_record.finished_season:
-                return False
-            if prev_record.ep1 is not None and dto.ep1 is not None:
-                last_watched_ep = prev_record.ep2 or prev_record.ep1
-                if dto.ep1 <= last_watched_ep:
+            if prev_record.season == dto.season:
+                if prev_record.finished_season:
                     return False
+                if dto.ep1 is not None:
+                    last_watched_ep = prev_record.ep2 or prev_record.ep1
+                    if dto.ep1 <= last_watched_ep:
+                        return False
+
         return True
 
-    # async def get_watch_history(self, user_id: str,
-    #                             type_filter: TypeFilter,
-    #                             status_filter: StatusFilter
-    #                             ) -> WatchHistory:
-    #     records = await self._storage.\
-    #         get_watch_history_records(user_id, type_filter, status_filter)
-    #     return WatchHistory.parse_obj(records)
+    async def get_watch_history(
+            self, dto: in_dto.GetWatchHistoryDTO) -> WatchHistory:
+        get_records_dto = GetRecordsDTO(
+            user_id=dto.user_id, type_filter=dto.type_filter,
+            status_filter=dto.status_filter
+        )
+        records = await self._storage.get_records(get_records_dto)
+        return WatchHistory.parse_obj(records)
