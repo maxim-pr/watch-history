@@ -8,6 +8,7 @@ async-timeout==4.0.2
 asyncpg==0.25.0
 attrs==21.4.0
 charset-normalizer==2.0.9
+ConfigArgParse==1.5.3
 frozenlist==1.2.0
 greenlet==1.1.2
 gunicorn==20.1.0
@@ -25,8 +26,9 @@ pyparsing==3.0.7
 pytest==7.0.1
 pytest-aiohttp==1.0.4
 pytest-asyncio==0.18.2
+PyYAML==6.0
 SQLAlchemy==1.4.29
 swagger-ui-bundle==0.0.9
 tomli==2.0.0
-typing-extensions==4.0.1
+typing_extensions==4.0.1
 yarl==1.7.2

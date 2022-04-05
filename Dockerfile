@@ -20,4 +20,4 @@ FROM python:3.10 as app
 COPY --from=builder /opt/app/ /opt/app/
 RUN ln -snf /opt/app/bin/watched-* /usr/local/bin/
 
-CMD ["watched-api"]
+ENTRYPOINT ["watched-api"]

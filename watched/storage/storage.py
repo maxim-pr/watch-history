@@ -20,7 +20,7 @@ from .db.schema import (
 
 
 class BaseRepository:
-    def __init__(self, db_url: str, log_sql: bool):
+    def __init__(self, db_url: str, log_sql: bool = False):
         self._engine = create_async_engine(url=db_url, echo=log_sql)
 
     async def close(self):
