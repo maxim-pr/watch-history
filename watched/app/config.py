@@ -23,7 +23,8 @@ class DBConfig:
     log_sql: bool
 
     def __post_init__(self):
-        self.url = f'postgresql+asyncpg://{self.user}:{self.password}@' \
+        self.url = f'postgresql+asyncpg://' \
+                   f'{self.user}:{self.password}@' \
                    f'{self.host}:{self.port}/{self.name}'
 
 
@@ -50,7 +51,7 @@ class Config:
 
 def read_config() -> Config:
     config_parser = ConfigParser()
-    config_parser.read("config.ini")
+    config_parser.read('config.ini')
 
     api_config = APIConfig(
         host=config_parser.get(API_SECTION, 'host'),
@@ -72,5 +73,4 @@ def read_config() -> Config:
         db=config_parser.getint(REDIS_SECTION, 'db')
     )
     log_level = config_parser.get(GENERAL_SECTION, 'log_level')
-
     return Config(api_config, db_config, redis_config, log_level)

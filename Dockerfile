@@ -1,11 +1,23 @@
-FROM python:3.10
+FROM python:3.10 as builder
 
+RUN python -m venv /opt/app/
 WORKDIR /opt/app/
 
-COPY watched/ ./watched/
+RUN bin/pip install -U pip
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY requirements.txt /opt/
+RUN bin/pip install -Ur /opt/requirements.txt
 
-COPY config.ini .
-CMD ["python", "-m", "watched"]
+COPY watched/ /opt/watched/
+COPY setup.py /opt/
+RUN cd /opt/ \
+    && /opt/app/bin/python setup.py sdist \
+    && /opt/app/bin/pip install /opt/dist/*
+
+
+FROM python:3.10 as app
+
+COPY --from=builder /opt/app/ /opt/app/
+RUN ln -snf /opt/app/bin/watched-* /usr/local/bin/
+
+CMD ["watched-api"]

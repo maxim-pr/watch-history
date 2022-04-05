@@ -26,11 +26,7 @@ class UpdateFilmRecordHandler(BaseHandler):
             logger.exception(e, exc_info=True)
             return web.HTTPForbidden.status_code, None
         except MediaTypeInconsistency:
-            response_data = {
-                'error': {
-                    'message': 'provided record_id corresponds to show record'
-                }
-            }
-            return web.HTTPBadRequest.status_code, response_data
+            data = {'message': 'provided record_id corresponds to show record'}
+            return web.HTTPBadRequest.status_code, data
 
         return web.HTTPNoContent.status_code, None

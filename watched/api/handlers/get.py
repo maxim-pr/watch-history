@@ -14,7 +14,5 @@ class GetWatchHistoryHandler(BaseHandler):
 
         watch_history = await self.service.get_watch_history(dto)
 
-        response_data = {
-            'data': watch_history.dict()['__root__']
-        }
-        return web.HTTPOk.status_code, response_data
+        data = watch_history.dict()['__root__']
+        return web.HTTPOk.status_code, data

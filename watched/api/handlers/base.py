@@ -5,8 +5,6 @@ from ..service import Service
 
 class BaseHandler(web.View):
     def __init__(self, request: web.Request):
-        if 'User-ID' not in request.headers:
-            raise web.HTTPUnauthorized()
         super().__init__(request)
 
     @property
